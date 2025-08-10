@@ -572,9 +572,11 @@ def main():
     for rel in dropped_missing:
         print(f"WARNING: path missing at target and was dropped: {rel}", file=sys.stderr)
 
-    # Resolve include specs to absolute, resolved paths
+    # Resolve include specs to absolute, resolved paths (supports top-level or [options])
     include_specs_abs = []
-    for sp in include_specs_from_cfg:
+    # Accept include_specs at top-level or within [options]
+    include_specs_all = (cfg.get("include_specs", []) or []) or (opts.get("include_specs", []) or [])
+    for sp in include_specs_all:
         p = Path(sp).expanduser()
         if not p.is_absolute():
             include_specs_abs.append((repo_dir / p).resolve().as_posix())
@@ -582,7 +584,8 @@ def main():
             include_specs_abs.append(p.resolve().as_posix())
 
     # Determine output path (CLI > TOML > default) so we can compute relative paths
-    cfg_output = cfg.get("output")
+    # Accept output at top-level or within [options]
+    cfg_output = cfg.get("output") or opts.get("output")
     chosen_output = args.output if args.output else cfg_output
     if chosen_output:
         out_path = Path(chosen_output).expanduser()
