@@ -1,0 +1,66 @@
+# Repository location (required)
+# - May be absolute, or relative to the location of this TOML file
+# - Will be resolved to an absolute path by the tool
+# Examples:
+#   repo_dir = "../my-magma-repo"           # relative
+#   repo_dir = "/home/user/src/magma-repo"  # absolute
+repo_dir = "/abs/path/to/your/repo"
+
+# Git refs
+# - 'baseline' is typically the integration branch (e.g. origin/main)
+# - 'target' is the branch/commit you want to overlay (e.g. HEAD)
+baseline = "origin/main"   # default
+target   = "HEAD"          # default
+
+# Fetch
+# - If true, run 'git fetch --prune' before diffing
+fetch = false              # default
+
+ 
+
+[selectors]
+# Optional selectors to expand the overlay beyond baseline..target
+# - commits: list of commit hashes; each must be an ancestor of 'target'
+# - ranges:  list of "A..B" ranges; 'B' must be an ancestor of 'target'
+# - paths:   paths to force-include (repo-relative or absolute)
+#            Missing explicit paths are a hard error
+# Examples:
+# commits = ["abc1234", "def5678"]
+# ranges  = ["release-2.28..hotfix-branch"]
+# paths   = ["package/Geometry/CrvG2/CrvG2.spec", "/abs/path/to/file.m"]
+commits = [ ]
+ranges  = [ ]
+paths   = [ ]
+
+[options]
+# Scope and ordering
+# - Only files under these prefixes are considered when building the overlay
+# - order: "spec-first" (all .spec before .m) or "lexicographic" (by path)
+restrict_prefixes = ["package/"]
+order = "spec-first"       # or "lexicographic"
+
+# Baseline selection mode
+# - "raw": use 'baseline' as-is (default)
+# - "merge-base": compute merge-base(baseline, target)
+# - "fork-point": use merge-base --fork-point(baseline, target) if available,
+#                  otherwise fall back to merge-base. This is ideal for
+#                  "only files changed on this branch since it forked".
+# baseline_mode = "raw"
+
+# Output formatting
+# - "curly": group entries by directory using curly-brace blocks (default)
+# - "flat": absolute paths
+# output_format = "curly"
+
+# Optional extras
+# - include_specs: extra spec files to prepend as '+<abs path>' entries
+#                  (absolute or repo-relative to repo_dir)
+# - output: where to write the generated overlay; if relative, resolved against repo_dir
+include_specs = [ ]
+output = ".magma_overlay.spec"
+
+# Example: only files changed on this branch since it forked from upstream/main
+# baseline = "upstream/main"
+# target = "HEAD"
+# [options]
+# baseline_mode = "fork-point"
