@@ -98,7 +98,7 @@ Exit codes: 0 on success; nonzero on invalid config, git errors, or missing expl
   - `merge-base`: use `git merge-base baseline target`
   - `fork-point`: prefer `git merge-base --fork-point baseline target`, falling back to `merge-base` if unavailable
 - `options.output_format`: how to write the overlay spec file:
-  - `curly` (default): group by relative directory with curly-brace blocks; inside blocks, files are basenames and `+<SpecName.spec>` lists each `.spec` in that directory. The whole file is wrapped in a top-level `{ ... }` block.
+  - `curly` (default): group by relative directory with curly-brace blocks; inside blocks, files are basenames and `+<SpecName.spec>` lists each `.spec` in that directory. If multiple directories share a common non-empty prefix, a single top-level `<common>/` block is used with nested subdirectory blocks. The whole file is wrapped in a top-level `{ ... }` block.
   - `flat`: relative `+<spec>` and `.m` paths, one per line; still wrapped in a top-level `{ ... }` block
 - `options.include_uncommitted` (default `true`): include uncommitted changes (staged, unstaged, untracked). Set to `false` to disable.
 - `include_specs`: extra spec files to include at top of output.
@@ -121,6 +121,17 @@ output = ".magma_overlay.spec"   # optional; default if omitted
 commits = []
 ranges = []
 paths = []
+```
+
+Disable uncommitted changes (use only committed diffs and explicit selectors):
+
+```toml
+repo_dir   = "/abs/path/to/your/repo"
+baseline = "origin/main"
+target = "HEAD"
+
+[options]
+include_uncommitted = false
 ```
 Track only files changed on this branch since it forked from `upstream/main`:
 
